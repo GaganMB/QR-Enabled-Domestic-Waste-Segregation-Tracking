@@ -1,0 +1,488 @@
+import '../auth/auth_util.dart';
+import '../backend/backend.dart';
+import '../backend/firebase_storage/storage.dart';
+import '../ework/ework_widget.dart';
+import '../flutter_flow/flutter_flow_icon_button.dart';
+import '../flutter_flow/flutter_flow_radio_button.dart';
+import '../flutter_flow/flutter_flow_theme.dart';
+import '../flutter_flow/flutter_flow_util.dart';
+import '../flutter_flow/flutter_flow_widgets.dart';
+import '../flutter_flow/upload_media.dart';
+import '../home_page/home_page_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class EworkWidget extends StatefulWidget {
+  const EworkWidget({
+    Key key,
+    this.image,
+  }) : super(key: key);
+
+  final String image;
+
+  @override
+  _EworkWidgetState createState() => _EworkWidgetState();
+}
+
+class _EworkWidgetState extends State<EworkWidget> {
+  DataRecord cdata;
+  String radioButtonValue1;
+  String radioButtonValue2;
+  TextEditingController meternumberController;
+  var meternumber = '';
+  String uploadedFileUrl = '';
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'ework'});
+    meternumberController = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: scaffoldKey,
+      appBar: AppBar(
+        backgroundColor: FlutterFlowTheme.of(context).primaryColor,
+        automaticallyImplyLeading: false,
+        leading: FlutterFlowIconButton(
+          borderColor: Colors.transparent,
+          borderRadius: 30,
+          borderWidth: 1,
+          buttonSize: 60,
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () async {
+            logFirebaseEvent('IconButton-ON_TAP');
+            logFirebaseEvent('IconButton-Navigate-Back');
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          '     QR Enabled Waste\nSegregation Tracking',
+          style: FlutterFlowTheme.of(context).title2.override(
+                fontFamily: 'Poppins',
+                color: Colors.white,
+                fontSize: 22,
+              ),
+        ),
+        actions: [],
+        centerTitle: false,
+        elevation: 2,
+      ),
+      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      body: SafeArea(
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
+                child: Text(
+                  'WELCOME',
+                  style: FlutterFlowTheme.of(context).bodyText1.override(
+                        fontFamily: 'Poppins',
+                        fontSize: 30,
+                      ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(10, 0, 10, 5),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(10, 0, 0, 0),
+                      child: Text(
+                        'Employee ID',
+                        style: FlutterFlowTheme.of(context).bodyText1.override(
+                              fontFamily: 'Poppins',
+                              fontSize: 20,
+                            ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(50, 0, 0, 0),
+                      child: AuthUserStreamWidget(
+                        child: Text(
+                          currentUserDocument?.employeeid.toString(),
+                          style:
+                              FlutterFlowTheme.of(context).bodyText1.override(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 20,
+                                  ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Align(
+                alignment: AlignmentDirectional(1, 0),
+                child: Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(0, 5, 20, 0),
+                  child: Text(
+                    dateTimeFormat('d/M/y', getCurrentTimestamp),
+                    textAlign: TextAlign.center,
+                    style: FlutterFlowTheme.of(context).bodyText1.override(
+                          fontFamily: 'Poppins',
+                          fontSize: 20,
+                        ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(10, 5, 10, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(20, 0, 0, 0),
+                      child: FFButtonWidget(
+                        onPressed: () async {
+                          logFirebaseEvent('scan-ON_TAP');
+                          logFirebaseEvent('scan-Scan-Barcode-Q-R-Code');
+                          meternumber = await FlutterBarcodeScanner.scanBarcode(
+                            '#C62828', // scanning line color
+                            'Cancel', // cancel button text
+                            true, // whether to show the flash icon
+                            ScanMode.QR,
+                          );
+
+                          setState(() {});
+                        },
+                        text: 'SCAN',
+                        options: FFButtonOptions(
+                          width: 130,
+                          height: 40,
+                          color: FlutterFlowTheme.of(context).primaryColor,
+                          textStyle:
+                              FlutterFlowTheme.of(context).subtitle2.override(
+                                    fontFamily: 'Poppins',
+                                    color: Colors.white,
+                                  ),
+                          borderSide: BorderSide(
+                            color: Colors.transparent,
+                            width: 1,
+                          ),
+                          borderRadius: 12,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(20, 0, 0, 0),
+                      child: Text(
+                        meternumberController.text,
+                        style: FlutterFlowTheme.of(context).bodyText1.override(
+                              fontFamily: 'Poppins',
+                              fontSize: 20,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(10, 5, 10, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(10, 1, 5, 0),
+                      child: Text(
+                        'Meter Number',
+                        style: FlutterFlowTheme.of(context).bodyText1.override(
+                              fontFamily: 'Poppins',
+                              fontSize: 20,
+                            ),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        controller: meternumberController,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          hintText: 'meternumber',
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 1,
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(4.0),
+                              topRight: Radius.circular(4.0),
+                            ),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 1,
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(4.0),
+                              topRight: Radius.circular(4.0),
+                            ),
+                          ),
+                        ),
+                        style: FlutterFlowTheme.of(context).bodyText1.override(
+                              fontFamily: 'Poppins',
+                              fontSize: 20,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 5, 0, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(10, 0, 20, 0),
+                      child: Text(
+                        'Kind of Waste',
+                        style: FlutterFlowTheme.of(context).bodyText1.override(
+                              fontFamily: 'Poppins',
+                              fontSize: 20,
+                            ),
+                      ),
+                    ),
+                    Text(
+                      'Segregation Status',
+                      style: FlutterFlowTheme.of(context).bodyText1.override(
+                            fontFamily: 'Poppins',
+                            fontSize: 20,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 5, 0, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(50, 0, 120, 0),
+                      child: FlutterFlowRadioButton(
+                        options: ['Wet', 'Dry'].toList(),
+                        onChanged: (value) {
+                          setState(() => radioButtonValue1 = value);
+                        },
+                        optionHeight: 25,
+                        textStyle:
+                            FlutterFlowTheme.of(context).bodyText1.override(
+                                  fontFamily: 'Poppins',
+                                  color: Colors.black,
+                                ),
+                        buttonPosition: RadioButtonPosition.left,
+                        direction: Axis.vertical,
+                        radioButtonColor: Colors.blue,
+                        inactiveRadioButtonColor: Color(0x8A000000),
+                        toggleable: false,
+                        horizontalAlignment: WrapAlignment.start,
+                        verticalAlignment: WrapCrossAlignment.start,
+                      ),
+                    ),
+                    FlutterFlowRadioButton(
+                      options: ['Yes', 'No'].toList(),
+                      onChanged: (value) {
+                        setState(() => radioButtonValue2 = value);
+                      },
+                      optionHeight: 25,
+                      textStyle:
+                          FlutterFlowTheme.of(context).bodyText1.override(
+                                fontFamily: 'Poppins',
+                                color: Colors.black,
+                              ),
+                      buttonPosition: RadioButtonPosition.left,
+                      direction: Axis.vertical,
+                      radioButtonColor: Colors.blue,
+                      inactiveRadioButtonColor: Color(0x8A000000),
+                      toggleable: false,
+                      horizontalAlignment: WrapAlignment.start,
+                      verticalAlignment: WrapCrossAlignment.start,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 5, 0, 0),
+                child: FFButtonWidget(
+                  onPressed: () async {
+                    logFirebaseEvent('Button-ON_TAP');
+                    logFirebaseEvent('Button-Upload-Photo-Video');
+                    final selectedMedia = await selectMedia(
+                      maxWidth: 1000.00,
+                      maxHeight: 1000.00,
+                      imageQuality: 100,
+                      multiImage: false,
+                    );
+                    if (selectedMedia != null &&
+                        selectedMedia.every((m) =>
+                            validateFileFormat(m.storagePath, context))) {
+                      showUploadMessage(
+                        context,
+                        'Uploading file...',
+                        showLoading: true,
+                      );
+                      final downloadUrls = await Future.wait(selectedMedia.map(
+                          (m) async =>
+                              await uploadData(m.storagePath, m.bytes)));
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      if (downloadUrls != null) {
+                        setState(() => uploadedFileUrl = downloadUrls.first);
+                        showUploadMessage(
+                          context,
+                          'Success!',
+                        );
+                      } else {
+                        showUploadMessage(
+                          context,
+                          'Failed to upload media',
+                        );
+                        return;
+                      }
+                    }
+                  },
+                  text: 'Upload Photo',
+                  options: FFButtonOptions(
+                    width: 150,
+                    height: 40,
+                    color: FlutterFlowTheme.of(context).primaryColor,
+                    textStyle: FlutterFlowTheme.of(context).subtitle2.override(
+                          fontFamily: 'Poppins',
+                          color: Colors.white,
+                        ),
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                      width: 1,
+                    ),
+                    borderRadius: 12,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
+                child: StreamBuilder<List<DataRecord>>(
+                  stream: queryDataRecord(
+                    queryBuilder: (dataRecord) => dataRecord.orderBy('date'),
+                    singleRecord: true,
+                  ),
+                  builder: (context, snapshot) {
+                    // Customize what your widget looks like when it's loading.
+                    if (!snapshot.hasData) {
+                      return Center(
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: CircularProgressIndicator(
+                            color: FlutterFlowTheme.of(context).primaryColor,
+                          ),
+                        ),
+                      );
+                    }
+                    List<DataRecord> buttonDataRecordList = snapshot.data;
+                    // Return an empty Container when the document does not exist.
+                    if (snapshot.data.isEmpty) {
+                      return Container();
+                    }
+                    final buttonDataRecord = buttonDataRecordList.isNotEmpty
+                        ? buttonDataRecordList.first
+                        : null;
+                    return FFButtonWidget(
+                      onPressed: () async {
+                        logFirebaseEvent('Button-ON_TAP');
+                        logFirebaseEvent('Button-Backend-Call');
+
+                        final dataCreateData = createDataRecordData(
+                          meternumber: int.parse(meternumberController.text),
+                          date: getCurrentTimestamp,
+                          kindofwaste: radioButtonValue1,
+                          segregationstatus: radioButtonValue2,
+                          photo: uploadedFileUrl,
+                          employeeid: currentUserDocument?.employeeid,
+                        );
+                        var dataRecordReference = DataRecord.collection.doc();
+                        await dataRecordReference.set(dataCreateData);
+                        cdata = DataRecord.getDocumentFromData(
+                            dataCreateData, dataRecordReference);
+                        logFirebaseEvent('Button-Navigate-To');
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EworkWidget(),
+                          ),
+                        );
+
+                        setState(() {});
+                      },
+                      text: 'SUBMIT',
+                      options: FFButtonOptions(
+                        width: 130,
+                        height: 40,
+                        color: FlutterFlowTheme.of(context).primaryColor,
+                        textStyle:
+                            FlutterFlowTheme.of(context).subtitle2.override(
+                                  fontFamily: 'Poppins',
+                                  color: Colors.white,
+                                ),
+                        borderSide: BorderSide(
+                          color: Colors.transparent,
+                          width: 1,
+                        ),
+                        borderRadius: 12,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
+                child: FFButtonWidget(
+                  onPressed: () async {
+                    logFirebaseEvent('Button-ON_TAP');
+                    logFirebaseEvent('Button-Auth');
+                    await signOut();
+                    logFirebaseEvent('Button-Navigate-To');
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePageWidget(),
+                      ),
+                    );
+                  },
+                  text: 'Logout',
+                  options: FFButtonOptions(
+                    width: 130,
+                    height: 40,
+                    color: FlutterFlowTheme.of(context).primaryColor,
+                    textStyle: FlutterFlowTheme.of(context).subtitle2.override(
+                          fontFamily: 'Poppins',
+                          color: Colors.white,
+                        ),
+                    borderSide: BorderSide(
+                      color: Colors.transparent,
+                      width: 1,
+                    ),
+                    borderRadius: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
